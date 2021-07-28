@@ -119,7 +119,7 @@ class Sigv4 {
     String path,
     Map<String, dynamic>? query,
     Map<String, dynamic> headers,
-    String payload,
+    String hashedPayload,
   ) {
     var canonicalRequest = [
       method,
@@ -127,7 +127,7 @@ class Sigv4 {
       buildCanonicalQueryString(query),
       buildCanonicalHeaders(headers),
       buildCanonicalSignedHeaders(headers),
-      hashPayloadString(payload),
+      hashedPayload,
     ];
     return canonicalRequest.join('\n');
   }

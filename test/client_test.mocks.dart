@@ -83,7 +83,7 @@ class MockSigv4Client extends _i1.Mock implements _i3.Sigv4Client {
           {String? method = r'GET',
           Map<String, dynamic>? query,
           Map<String, dynamic>? headers,
-          String? body,
+          Object? body,
           String? dateTime,
           String? encoding,
           bool? signPayload = true,

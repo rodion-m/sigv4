@@ -117,10 +117,11 @@ class Sigv4Client implements BaseSigv4Client {
       body = <int>[];
     }
 
+    final hashedPayload = body is String
+        ? Sigv4.hashPayloadString(body)
+        : Sigv4.hashPayload(body as List<int>);
     if (signPayload) {
-      headers[_x_amz_content_sha256] = body is String
-                                  ? Sigv4.hashPayloadString(body)
-                                  : Sigv4.hashPayload(body as List<int>);
+      headers[_x_amz_content_sha256] = hashedPayload;
     }
 
     if (body == '') {
@@ -150,7 +151,7 @@ class Sigv4Client implements BaseSigv4Client {
       path: path,
       query: query,
       headers: headers,
-      body: body,
+      hashedPayload: hashedPayload,
       dateTime: dateTime,
     );
 
@@ -227,11 +228,11 @@ class Sigv4Client implements BaseSigv4Client {
     required String path,
     Map<String, dynamic>? query,
     required Map<String, dynamic> headers,
-    required String body,
+    required String hashedPayload,
     required String dateTime,
   }) {
     final canonicalRequest =
-        Sigv4.buildCanonicalRequest(method, path, query, headers, body);
+        Sigv4.buildCanonicalRequest(method, path, query, headers, hashedPayload);
     final hashedCanonicalRequest = Sigv4.hashPayloadString(canonicalRequest);
     final credentialScope =
         Sigv4.buildCredentialScope(dateTime, region, serviceName);
