@@ -63,7 +63,7 @@ class Sigv4Client implements BaseSigv4Client {
   /// - `method`: The HTTP verb your request is using
   /// - `query`: Query parameters, if any. __required__ to be included if used
   /// - `headers`: Any additional headers. **DO NOT** add headers to your request after generating signed headers
-  /// - `body`: An *encodable* object
+  /// - `body`: An *encodable* object (string or byte array)
   /// - `dateTime`: An AWS-compatible time string. You'll probably want to leave it blank.
   /// - `encoding`: The payload encoding. if any
   /// - `signPayload`: If the optional payload should be signed or unsigned
@@ -73,7 +73,7 @@ class Sigv4Client implements BaseSigv4Client {
     String? method = 'GET',
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
-    String? body,
+    Object? body,
     String? dateTime,
     String? encoding,
     bool signPayload = true,
@@ -81,6 +81,9 @@ class Sigv4Client implements BaseSigv4Client {
   }) {
     if (path.isEmpty) {
       throw AssertionError('path is empty');
+    }
+    if (body != null && !(body is String) && !(body is List<int>)) {
+      throw AssertionError('body have to be String or List<int> or null');
     }
 
     /// Split the URI into segments
@@ -111,11 +114,13 @@ class Sigv4Client implements BaseSigv4Client {
 
     /// Set the `body`, if any
     if (body == null || method == 'GET') {
-      body = '';
+      body = <int>[];
     }
 
     if (signPayload) {
-      headers[_x_amz_content_sha256] = Sigv4.hashPayload(body);
+      headers[_x_amz_content_sha256] = body is String
+                                  ? Sigv4.hashPayloadString(body)
+                                  : Sigv4.hashPayload(body as List<int>);
     }
 
     if (body == '') {
@@ -227,7 +232,7 @@ class Sigv4Client implements BaseSigv4Client {
   }) {
     final canonicalRequest =
         Sigv4.buildCanonicalRequest(method, path, query, headers, body);
-    final hashedCanonicalRequest = Sigv4.hashPayload(canonicalRequest);
+    final hashedCanonicalRequest = Sigv4.hashPayloadString(canonicalRequest);
     final credentialScope =
         Sigv4.buildCredentialScope(dateTime, region, serviceName);
     final stringToSign = Sigv4.buildStringToSign(

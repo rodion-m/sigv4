@@ -36,8 +36,13 @@ class Sigv4 {
   }
 
   /// Hex-encodes a SHA256 hash of the given payload string, `payload`
-  static String hashPayload(String payload) {
+  static String hashPayloadString(String payload) {
     return hexEncode(hash(utf8.encode(payload)));
+  }
+
+  /// Hex-encodes a SHA256 hash of the given payload byte array, `payload`
+  static String hashPayload(List<int> payload) {
+    return hexEncode(hash(payload));
   }
 
   /// Encodes the given string to a canonical URI
@@ -122,7 +127,7 @@ class Sigv4 {
       buildCanonicalQueryString(query),
       buildCanonicalHeaders(headers),
       buildCanonicalSignedHeaders(headers),
-      hashPayload(payload),
+      hashPayloadString(payload),
     ];
     return canonicalRequest.join('\n');
   }
