@@ -113,7 +113,7 @@ class Sigv4Client implements BaseSigv4Client {
     }
 
     /// Set the `body`, if any
-    if (body == null || method == 'GET') {
+    if (body == null || body == '' || method == 'GET') {
       body = <int>[];
     }
 
@@ -124,7 +124,7 @@ class Sigv4Client implements BaseSigv4Client {
       headers[_x_amz_content_sha256] = hashedPayload;
     }
 
-    if (body == '') {
+    if (body == <int>[]) {
       headers.remove('Content-Type');
     }
 
