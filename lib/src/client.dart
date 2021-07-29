@@ -82,8 +82,11 @@ class Sigv4Client implements BaseSigv4Client {
     if (path.isEmpty) {
       throw AssertionError('path is empty');
     }
-    if (body != null && !(body is String) && !(body is List<int>)) {
+    if (body != null && !(body is String) && !(body is Stream<List<int>>)) {
       throw AssertionError('body have to be String or List<int> or null');
+    }
+    if(body is Stream<List<int>>) {
+      body.listen((event) => body = event);
     }
 
     /// Split the URI into segments
@@ -118,7 +121,7 @@ class Sigv4Client implements BaseSigv4Client {
     }
 
     final hashedPayload = body is String
-        ? Sigv4.hashPayloadString(body)
+        ? Sigv4.hashPayloadString(body as String)
         : Sigv4.hashPayload(body as List<int>);
     if (signPayload) {
       headers[_x_amz_content_sha256] = hashedPayload;
